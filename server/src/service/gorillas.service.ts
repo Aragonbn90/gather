@@ -67,15 +67,16 @@ export class GorillasService extends BaseService {
 
   async search(url: string, q: string): Promise<GorillasDTO[]> {
     const headers = {
-      '': '',
+      'Authorization': 'Bearer eyJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJhcHBsaWNhdGlvbiIsImlzcyI6ImdvcmlsbGFzLW1vbm9saXRoIiwidWlkIjoiUG5XWFY0OTVRSHk3UEJwdzNhcTQ4USIsInVzZXJJZCI6IjYxYjc1NzgxMjg2NzEzNjkxODBjNzNiMSIsInJvbGVzIjpbIlVTRVIiXSwiYXBpVHlwZSI6IkFQUCIsInRhZ3MiOlsiTUFSS0VUX0FQUF9VU0VSIl0sImlhdCI6MTYzOTY5NTIyMywidGVuYW50IjoiWnpSbUJnazNTSnFBRUZadzFQNWNkQSIsInZlcnNpb24iOjJ9.xls8Trb1ttgeCDMOb-5X8wmhmix4foP6r7YwO-Hc7UseA0rIOrE6vsYKuv1euwKe',
+      "Content-Type": "application/json",
     };
 
-    const body = { keyword: q };
+    const body = { "locality": { "coordinates": { "lat": 49.4522465563542, "lon": 11.0631623802871 } }, "isLazy": false, "locale": "en", "version": "15.25", "os": "android", "appIdentifier": "6bf958c9467bd123", "appName": "getgoodys" };
     const res = await this.httpService.post(url, body, { headers }).toPromise();
-    await this.store(['search'], this.urlToProductId(`${url}?q=${q}`), Buffer.from(JSON.stringify(res.data.data.products)), '.json');
-
-    const entities = res.data.data.products.map(this.productToEntity);
+    await this.store(['search'], this.urlToProductId(`ABC`), Buffer.from(JSON.stringify(res.data.items)), '.json');
+    const entities = res.data.items.map(this.productToEntity);
     this.gorillasRepository.save(entities);
+    console.log('sss')
     return entities.map(GorillasMapper.fromDTOtoEntity);
   }
 
