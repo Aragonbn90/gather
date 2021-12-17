@@ -76,6 +76,7 @@ export class GorillasService extends BaseService {
     await this.store(['search'], this.urlToProductId(`ABC`), Buffer.from(JSON.stringify(res.data.items)), '.json');
     const entities = res.data.items.map(this.productToEntity);
     this.gorillasRepository.save(entities);
+    console.log('sss')
     return entities.map(GorillasMapper.fromDTOtoEntity);
   }
 
