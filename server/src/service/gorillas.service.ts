@@ -76,6 +76,7 @@ export class GorillasService extends BaseService {
 
     const entities = res.data.data.products.map(this.productToEntity);
     this.gorillasRepository.save(entities);
+    console.log('sss')
     return entities.map(GorillasMapper.fromDTOtoEntity);
   }
 
