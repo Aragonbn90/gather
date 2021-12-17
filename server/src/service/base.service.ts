@@ -17,32 +17,46 @@ export abstract class BaseService {
 
   async one(url: string): Promise<BaseDTO> {
     //gather
-    const data = await this.queryOne(url);
+    const [data, imageUrls] = await this.queryOne(url);
     data.url = url;
 
     //store json and jpg
-    this.storeOne(data);
+    this.storeOne(data, imageUrls);
 
     //extract (and save to database)
     return this.extractOne(data);
   }
 
-  // async search(q: string): Promise<BaseDTO[]> {
-  //   return null;
-  // }
-
-  // async category(url: string): Promise<BaseDTO[]> {
-  //   return null;
-  // }
-
   urlToProductId(url: string): string {
     return Buffer.from(url).toString('base64').replace('/', '%2F');
   }
 
+  productIdToUrl(productId: string): string {
+    return Buffer.from(productId.replace('%2F', '/')).toString('base64').replace('/', '%2F');
+  }
+
   protected abstract getRetailer(): string
-  protected abstract queryOne(url: string): Promise<any>
-  protected abstract storeOne(data: any): Promise<void>
+  protected abstract queryOne(url: string): Promise<[any, string[]]>
   protected abstract extractOne(data: any): Promise<BaseDTO>
+  protected abstract search(url: string, q: string): Promise<BaseDTO[]>
+
+  private async storeOne(product: any, imageUrls: string[]): Promise<void> {
+    const fileName = this.urlToProductId(product.url);
+    await this.store(['detail'], fileName, Buffer.from(JSON.stringify(product), 'utf-8'), '.json');
+    imageUrls.map(async (imageUrl: string, index: number) => {
+      return this.storeImage(fileName + index, imageUrl);
+    });
+  }
+
+  private async storeImage(fileName: string, url: string): Promise<string> {
+    const response = await this.httpService.axiosRef({
+      url,
+      method: 'GET',
+      responseType: 'stream',
+    });
+
+    return this.fileService.storeAsStream([this.getRetailer(), 'detail'], fileName, '.jpg', response);
+  }
 
   async store(directories: string[], fileName: string, content: Buffer, extension: string): Promise<string> {
     const url = await this.fileService.store([this.getRetailer(), ...directories], fileName, extension, content);

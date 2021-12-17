@@ -46,15 +46,7 @@ export class GetirService extends BaseService {
     };
     const res = await this.httpService.get(url, { headers }).toPromise();
     // this.logger.log('Product res: ', JSON.stringify(res.data.data));
-    return [res.data.data.product];
-  }
-
-  protected async storeOne(product: any): Promise<void> {
-    const fileName = this.urlToProductId(product.url);
-    await this.store(['detail'], fileName, Buffer.from(JSON.stringify(product), 'utf-8'), '.json');
-    product.picURLs.map(async (imageUrl, index) => {
-      return this.storeImage(fileName + index, imageUrl);
-    });
+    return [res.data.data.product, res.data.data.product.picURLs];
   }
 
   protected async extractOne(product: any): Promise<GetirDTO> {
@@ -65,7 +57,7 @@ export class GetirService extends BaseService {
 
   private productToEntity(product: any): Getir {
     const entity = new Getir();
-    entity.url = product.url;
+    entity.url = `https://getirx-client-api-gateway.getirapi.com/products/${product.id}`;
     entity.productNo = product.id;
     entity.name = product.name;
     entity.imageUrls = product.picURLs;
@@ -98,16 +90,6 @@ export class GetirService extends BaseService {
 
   async category(url: string): Promise<GetirDTO[]> {
     return null;
-  }
-
-  private async storeImage(fileName: string, url: string): Promise<string> {
-    const response = await this.httpService.axiosRef({
-      url,
-      method: 'GET',
-      responseType: 'stream',
-    });
-
-    return this.fileService.storeAsStream([RETAILER, 'detail'], fileName, '.jpg', response);
   }
 
 

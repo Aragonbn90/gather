@@ -8,6 +8,11 @@ export class FileService {
 
     logger = new Logger('FileService');
 
+    async readJSON(directories: string[], fileName: string): Promise<any> {
+        const path = this.path(directories, fileName, '.json');
+        return fse.readJSON(path, { encoding: 'utf8' });
+    }
+
     async remove(directories: string[], fileName: string, extension: string = 'json'): Promise<string> {
         const path = this.path(directories, fileName, extension);
 
