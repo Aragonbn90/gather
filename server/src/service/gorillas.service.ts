@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, FindOneOptions } from 'typeorm';
 import { GorillasDTO } from './dto/gorillas.dto';
 import { GorillasMapper } from './mapper/gorillas.mapper';
-import { GorillasRepository } from '../repository/Gorillas.repository';
+import { GorillasRepository } from '../repository/gorillas.repository';
 import { Gorillas } from '../domain/gorillas.entity';
 import { FileService } from './file.service';
 import { BaseService } from './base.service';
