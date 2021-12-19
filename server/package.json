@@ -57,6 +57,7 @@
     "dotenv": "8.2.0",
     "eureka-js-client": "4.5.0",
     "fs-extra": "^10.0.0",
+    "hashids": "^2.2.10",
     "js-yaml": "4.1.0",
     "mongodb": "3.6.3",
     "mongodb-memory-server": "6.9.2",
@@ -65,7 +66,6 @@
     "reflect-metadata": "0.1.13",
     "rxjs": "6.6.3",
     "shelljs": "0.8.4",
-    "sqlite3": "^5.0.0",
     "swagger-ui-express": "4.0.7",
     "typeorm": "0.2.29",
     "typeorm-encrypted": "0.5.6"

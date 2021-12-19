@@ -8,6 +8,9 @@ import { Getir } from '../domain/getir.entity';
 import { FileService } from './file.service';
 import { BaseService } from './base.service';
 import { HttpService } from '@nestjs/axios';
+import { Product } from '../domain/product.entity';
+import { ProductMapper } from './mapper/product.mapper';
+import { ProductDTO } from './dto/product.dto';
 
 
 const relationshipNames = [];
@@ -49,14 +52,14 @@ export class GetirService extends BaseService {
     return [res.data.data.product, res.data.data.product.picURLs];
   }
 
-  protected async extractOne(product: any): Promise<GetirDTO> {
-    const entity = this.productToEntity(product);
+  protected async extractOne(product: any): Promise<ProductDTO> {
+    const entity = this.rawToStandardProduct(product);
     this.getirRepository.save(entity);
-    return GetirMapper.fromEntityToDTO(entity);
+    return ProductMapper.fromEntityToDTO(entity);
   }
 
-  private productToEntity(product: any): Getir {
-    const entity = new Getir();
+  private rawToStandardProduct(product: any): Product {
+    const entity = new Product();
     entity.url = `https://getirx-client-api-gateway.getirapi.com/products/${product.id}`;
     entity.productNo = product.id;
     entity.name = product.name;
@@ -81,9 +84,9 @@ export class GetirService extends BaseService {
 
     const body = { keyword: q };
     const res = await this.httpService.post(url, body, { headers }).toPromise();
-    await this.store(['search'], this.urlToProductId(`${url}?q=${q}`), Buffer.from(JSON.stringify(res.data.data.products)), '.json');
+    await this.store(['search'], this.searchTermToFilename(q), Buffer.from(JSON.stringify(res.data.data.products)), '.json');
 
-    const entities = res.data.data.products.map(this.productToEntity);
+    const entities = res.data.data.products.map(this.rawToStandardProduct);
     this.getirRepository.save(entities);
     return entities.map(GetirMapper.fromDTOtoEntity);
   }

@@ -11,8 +11,11 @@ import { BaseEntity } from './base/base.entity';
 @Entity('product')
 export class Product extends BaseEntity  {
 
+    @Column({name: "url", nullable: true})
+    url: string;
+
     @Column({name: "image_urls", nullable: true})
-    imageUrls: string;
+    imageUrls: string[];
 
     @Column({name: "group_id", nullable: true})
     groupId: string;

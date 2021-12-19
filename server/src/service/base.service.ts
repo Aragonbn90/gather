@@ -17,32 +17,40 @@ export abstract class BaseService {
 
   async one(url: string): Promise<BaseDTO> {
     //gather
-    const [data, imageUrls] = await this.queryOne(url);
-    data.url = url;
+    const [raw, productNo, imageLinks] = await this.queryOne(url);
+    raw.url = url;
 
     //store json and jpg
-    this.storeOne(data, imageUrls);
+    this.storeOne(raw, productNo, imageLinks);
 
     //extract (and save to database)
-    return this.extractOne(data);
+    return this.extractOne(raw);
   }
 
-  urlToProductId(url: string): string {
-    return Buffer.from(url).toString('base64').replace('/', '%2F');
+  productNoToId(productNo: string): string {
+    return Buffer.from(productNo, "utf8").toString('base64').replace('/', '%2F');
   }
 
-  productIdToUrl(productId: string): string {
-    return Buffer.from(productId.replace('%2F', '/')).toString('base64').replace('/', '%2F');
+  idToProductNo(id: string): string {
+    return Buffer.from(id.replace('%2F', '/'), "base64").toString('utf8');
+  }
+
+  searchTermToFilename(term: string): string {
+    return Buffer.from(term, "utf8").toString('base64').replace('/', '%2F');
+  }
+
+  fileNameToSearchTerm(fileName: string): string {
+    return Buffer.from(fileName.replace('%2F', '/'), "base64").toString('utf8');
   }
 
   protected abstract getRetailer(): string
-  protected abstract queryOne(url: string): Promise<[any, string[]]>
+  protected abstract queryOne(url: string): Promise<[raw: any, id: string, imageUrls: string[]]>
   protected abstract extractOne(data: any): Promise<BaseDTO>
   protected abstract search(url: string, q: string): Promise<BaseDTO[]>
 
-  private async storeOne(product: any, imageUrls: string[]): Promise<void> {
-    const fileName = this.urlToProductId(product.url);
-    await this.store(['detail'], fileName, Buffer.from(JSON.stringify(product), 'utf-8'), '.json');
+  private async storeOne(raw: any, productNo: string, imageUrls: string[]): Promise<void> {
+    const fileName = this.productNoToId(productNo);
+    await this.store(['detail'], fileName, Buffer.from(JSON.stringify(raw), 'utf-8'), '.json');
     imageUrls.map(async (imageUrl: string, index: number) => {
       return this.storeImage(fileName + index, imageUrl);
     });
